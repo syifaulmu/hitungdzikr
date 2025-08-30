@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Aplikasi Dzikir Counter - Hitung dzikir dan sholawat dengan mudah, dilengkapi timer dan progress tracking">
+    <meta name="keywords" content="dzikir, counter, sholawat, islam, tasbih, digital">
+    <meta name="author" content="Dzikir Counter App">
+    <title>Dzikir Counter - Aplikasi Penghitung Dzikir Digital</title>
+    
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #111827;
+            --text: #e5e7eb;
+            --muted: #9ca3af;
+            --accent: #22c55e;
+            --accent-2: #16a34a;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --shadow: 0 10px 30px rgba(0,0,0,.35);
+            --radius: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(1200px 700px at 50% -20%, #1f2937, var(--bg));
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            backdrop-filter: blur(6px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            background: linear-gradient(135deg, var(--accent), #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .display {
+            text-align: center;
+            margin: 24px 0;
+        }
+
+        .count-wrapper {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .count {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1;
+            transition: transform 0.15s ease;
+        }
+
+        .target {
+            font-size: 18px;
+            color: var(--muted);
+        }
+
+        .progress-container {
+            margin: 16px 0;
+        }
+
+        .progress {
+            height: 14px;
+            width: 100%;
+            background: rgba(255,255,255,.06);
+            border-radius: 999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #d1fae5;
+            text-shadow: 0 1px 2px rgba(0,0,0,.6);
+            font-weight: 600;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(17,24,39,.8);
+            color: var(--text);
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,0,0,.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(180deg, #065f46, #047857);
+            border-color: rgba(16,185,129,.4);
+        }
+
+        .btn-ghost {
+            background: rgba(255,255,255,.06);
+        }
+
+        .btn-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select {
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,.08);
+            background: rgba(17,24,39,.8);
+            color: var(--text);
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .quick-targets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .quick-btn {
+            padding: 12px;
+            font-size: 14px;
+            min-height: 44px;
+        }
+
+        .stats {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,.08);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .stat-item {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .kbd {
+            font-family: ui-monospace, 'SF Mono', Consolas, monospace;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+        }
+
+        .completed {
+            background: linear-gradient(135deg, #065f46, #047857) !important;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            z-index: 1000;
+            animation: celebrate 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes celebrate {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 12px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .count {
+                font-size: 48px;
+            }
+            
+            .controls {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .quick-targets {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .count {
+                font-size: 40px;
+            }
+            
+            .card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <main class="card">
+            <header class="header">
+                <h1 class="title">Dzikir Counter</h1>
+                <p class="subtitle">
+                    Aplikasi penghitung dzikir digital dengan timer dan progress tracking.<br>
+                    Klik tombol atau tekan <span class="kbd">Spasi</span> untuk menambah dzikir.
+                </p>
+            </header>
+
+            <section class="display">
+                <div class="count-wrapper">
+                    <span class="count" id="count">0</span>
+                    <span class="target">/ <span id="target">100</span></span>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress">
+                        <div class="progress-bar" id="progressBar"></div>
+                        <div class="progress-text" id="percentage">0%</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="controls">
+                <button class="btn btn-primary" onclick="increment()">
+                    <span class="btn-label">Tambah</span>
+                    Dzikir (+1)
+                </button>
+                
+                <button class="btn btn-ghost" onclick="reset()">
+                    <span class="btn-label">Reset</span>
+                    Mulai Ulang
+                </button>
+            </section>
+
+            <section class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="targetInput">Target Dzikir</label>
+                    <input type="number" id="targetInput" class="form-input" value="100" min="1" max="10000" onchange="updateTarget()">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="dzikrSelect">Jenis Dzikir</label>
+                    <select id="dzikrSelect" class="form-select" onchange="changeDzikr()">
+                        <option value="Astaghfirullah">Astaghfirullah</option>
+                        <option value="Subhanallah">Subhanallah</option>
+                        <option value="Alhamdulillah">Alhamdulillah</option>
+                        <option value="Allahu Akbar">Allahu Akbar</option>
+                        <option value="La ilaha illa Allah">La ilaha illa Allah</option>
+                        <option value="Sholawat Nabi">Sholawat Nabi</option>
+                        <option value="Allahumma sholli 'ala Muhammad">Allahumma sholli 'ala Muhammad</option>
+                        <option value="Sholawat Ibrahim">Sholawat Ibrahim</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="quick-targets">
+                <button class="btn btn-ghost quick-btn" onclick="setTarget(33)">33x</button>
+                <button class="btn btn-ghost quick-btn" onclick="setTarget(100)">100x</button>
+                <button class="btn btn-ghost quick-btn" onclick="setTarget(1000)">1000x</button>
+            </section>
+
+            <footer class="stats">
+                <div class="stat-item">
+                    <div id="completedToday">Hari ini: 0 dzikir</div>
+                    <div id="sessionTime">Waktu sesi: 00:00</div>
+                </div>
+                <div class="stat-item">
+                    <div>Tekan <span class="kbd">R</span> untuk reset</div>
+                    <div id="totalTime">Total hari ini: 00:00</div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Application State
+        let currentCount = 0;
+        let currentTarget = 100;
+        let dailyTotal = parseInt(localStorage.getItem('dailyDzikr') || '0');
+        let lastDate = localStorage.getItem('lastDzikirDate');
+        
+        // Timer State
+        let sessionStartTime = null;
+        let sessionElapsed = 0;
+        let dailyTimeSpent = parseInt(localStorage.getItem('dailyTimeSpent') || '0');
+        let timerInterval = null;
+        let isActive = false;
+        
+        // Initialize app
+        function init() {
+            // Reset daily count if it's a new day
+            const today = new Date().toDateString();
+            if (lastDate !== today) {
+                dailyTotal = 0;
+                dailyTimeSpent = 0;
+                localStorage.setItem('dailyDzikr', '0');
+                localStorage.setItem('dailyTimeSpent', '0');
+                localStorage.setItem('lastDzikirDate', today);
+            }
+            
+            updateDisplay();
+            setupEventListeners();
+        }
+        
+        // Time formatting utility
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Timer functions
+        function startTimer() {
+            if (!isActive) {
+                sessionStartTime = Date.now() - (sessionElapsed * 1000);
+                isActive = true;
+                timerInterval = setInterval(updateTimer, 1000);
+            }
+        }
+        
+        function stopTimer() {
+            if (isActive) {
+                isActive = false;
+                clearInterval(timerInterval);
+                dailyTimeSpent += sessionElapsed;
+                localStorage.setItem('dailyTimeSpent', dailyTimeSpent.toString());
+            }
+        }
+        
+        function updateTimer() {
+            if (isActive && sessionStartTime) {
+                sessionElapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+            }
+        }
+        
+        // Display update function
+        function updateDisplay() {
+            document.getElementById('count').textContent = currentCount;
+            document.getElementById('target').textContent = currentTarget;
+            
+            const percentage = Math.min((currentCount / currentTarget) * 100, 100);
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('percentage').textContent = Math.round(percentage) + '%';
+            
+            document.getElementById('completedToday').textContent = `Hari ini: ${dailyTotal} dzikir`;
+            document.getElementById('sessionTime').textContent = `Waktu sesi: ${formatTime(sessionElapsed)}`;
+            document.getElementById('totalTime').textContent = `Total hari ini: ${formatTime(dailyTimeSpent + sessionElapsed)}`;
+            
+            // Check completion
+            const card = document.querySelector('.card');
+            if (currentCount >= currentTarget) {
+                card.classList.add('completed');
+                if (currentCount === currentTarget) {
+                    showCelebration();
+                }
+            } else {
+                card.classList.remove('completed');
+            }
+        }
+        
+        // Core functions
+        function increment() {
+            if (currentCount === 0) {
+                startTimer();
+            }
+            
+            currentCount++;
+            dailyTotal++;
+            localStorage.setItem('dailyDzikr', dailyTotal.toString());
+            
+            // Animation
+            const countEl = document.getElementById('count');
+            countEl.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                countEl.style.transform = 'scale(1)';
+            }, 150);
+            
+            updateDisplay();
+        }
+        
+        function reset() {
+            stopTimer();
+            currentCount = 0;
+            sessionElapsed = 0;
+            sessionStartTime = null;
+            document.querySelector('.card').classList.remove('completed');
+            updateDisplay();
+        }
+        
+        function updateTarget() {
+            const newTarget = parseInt(document.getElementById('targetInput').value);
+            if (newTarget > 0 && newTarget <= 10000) {
+                currentTarget = newTarget;
+                updateDisplay();
+            }
+        }
+        
+        function setTarget(target) {
+            currentTarget = target;
+            document.getElementById('targetInput').value = target;
+            updateDisplay();
+        }
+        
+        function changeDzikr() {
+            const selectedDzikr = document.getElementById('dzikrSelect').value;
+            const subtitle = document.querySelector('.subtitle');
+            subtitle.innerHTML = `"${selectedDzikr}" — Klik tombol atau tekan <span class="kbd">Spasi</span> untuk menambah dzikir.`;
+        }
+        
+        function showCelebration() {
+            const celebration = document.createElement('div');
+            celebration.className = 'celebration';
+            celebration.textContent = '🎉 Alhamdulillah! 🎉';
+            document.body.appendChild(celebration);
+            
+            setTimeout(() => {
+                if (document.body.contains(celebration)) {
+                    document.body.removeChild(celebration);
+                }
+            }, 1000);
+        }
+        
+        // Event listeners
+        function setupEventListeners() {
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    increment();
+                } else if (e.code === 'KeyR') {
+                    e.preventDefault();
+                    reset();
+                }
+            });
+            
+            // Update timer display
+            setInterval(() => {
+                if (isActive) {
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97705d06e5bac579',t:'MTc1NjUxNTc1NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
